@@ -70,6 +70,15 @@ namespace argparse {
     template <typename, typename = void> struct has_ostream_operator : std::false_type {};
     template <typename T> struct has_ostream_operator<T, decltype(void(std::declval<std::ostream&>() << std::declval<const T&>()))> : std::true_type {};
 
+    inline std::string wstring_to_utf8(const std::wstring& v) {
+        if (v.empty()) return {};
+
+        std::filesystem::path p(v);
+
+        auto u8 = p.u8string();
+        return std::string(u8.begin(), u8.end());
+    }
+
     inline std::string bold(const std::string& input_str) {
 #ifdef _WIN32
         return input_str; // no bold for windows
@@ -90,7 +99,7 @@ namespace argparse {
 #pragma warning(push)
 #pragma warning(disable : 4996) // C4996 is the typical MSVC deprecation warning
 #endif
-            return std::wstring_convert<std::codecvt_utf8<wchar_t>>().to_bytes(v);
+            return wstring_to_utf8(v);
 #if defined(__clang__)
 #pragma clang diagnostic pop
 #elif defined(__GNUC__)
